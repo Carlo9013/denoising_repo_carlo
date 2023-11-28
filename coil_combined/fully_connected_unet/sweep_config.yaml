@@ -1,0 +1,42 @@
+program: run_training.py
+method: bayes
+metric:
+  name: vals_rmse
+  goal: minimize
+parameters:
+  learning_rate:
+    max: 0.1
+    min: 0.0001
+    distribution: uniform
+  lr_scheduler:
+    values:
+      - none
+      - exponential
+    distribution: categorical
+  kernel_size:
+    values:
+      - 3
+      - 5
+      - 7
+    distribution: categorical
+  batch_size:
+    values:
+      - 128
+      - 256
+      - 512
+    distribution: categorical
+  loss:
+    values:
+      - mse
+      - L1
+    distribution: categorical
+  optimizer:
+    values:
+      - adam
+      - RMSprop
+    distribution: categorical
+  lr_decay:
+    max: 0.999
+    min: 0.9
+    distribution: uniform
+

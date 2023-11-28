@@ -1,0 +1,4 @@
+run_name: st_denoising
+save_nifti_in_folder: nifti_files/st_denoising
+save_fitting_results_in_folder: fitting_results/st_denoising
+save_test_results_in_folder: inference_results_numpy_files/st_denoising

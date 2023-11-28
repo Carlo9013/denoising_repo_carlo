@@ -1,0 +1,32 @@
+name: Denoising CNN MRS Spectra experiment
+project_name: DnCNN original for Transients MRS Spectra
+model_name: DnCNN 
+run_name: dncnn_transients_patience_10_lr_reduce_on_plateau_adamw
+data_value: real
+train_split: 0.7
+val_split: 0.2
+test_split: 0.1
+batch_size: 256
+test_batch_size: 32
+activation: relu
+depth: 20
+optimizer: AdamW
+diffusion: False
+learning_rate: 0.001
+lr_scheduler: reduce_on_plateau
+bn_eps: 0.1
+bn_momentum: 0.95
+predict_noise: True
+loss: mse
+epochs: 500
+seed: 42
+normalize_input_data: False 
+kernel_size : 5
+input_channels : 2
+output_channels : 64
+transients: True
+save_checkpoint_to: models/transients/dncnn/dncnn_original
+checkpoint_file_path: models/transients/dncnn/dncnn_original/last.ckpt
+save_nifti_in_folder: nifti_files/dncnn_original_transients
+save_fitting_results_in_folder: fitting_results/dncnn_original_transients
+

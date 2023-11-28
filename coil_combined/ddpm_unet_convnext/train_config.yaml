@@ -1,0 +1,29 @@
+name: DDPM Unet. MRS Spectra experiment
+project_name: DDPM Unet for Coil Combined MRS Spectra
+model_name: ddpm_unet_convnext
+run_name: ddpm_unet_convnext_lr_0_0001_on_plateau_adawm
+data_value: real
+train_split: 0.7
+val_split: 0.2
+test_split: 0.1
+batch_size: 128
+activation: relu
+optimizer: AdamW
+diffusion: False
+learning_rate:  0.0001
+early_stopping_patience: 10
+predict_noise: False
+loss: L1
+test_batch_size: 32
+epochs: 500
+seed: 42
+kernel_size : 3
+input_channels : 2
+output_channels : 64
+lr_scheduler: reduce_on_plateau
+transients: False
+save_checkpoint_to: models/coil_combined/ddpm_unet_convnext
+checkpoint_file_path: models/coil_combined/ddpm_unet_convnext/last.ckpt
+save_nifti_in_folder: nifti_files/ddpm_unet_convnext
+save_fitting_results_in_folder: fitting_results/ddpm_unet_convnext
+save_test_results_in_folder: inference_results_numpy_files/ddpm_unet_convnext

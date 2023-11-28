@@ -1,0 +1,27 @@
+name: Fully Connected DenseNet. MRS Spectra experiment
+project_name: Fully Connected DenseNet for Transients MRS Spectra
+model_name: Fully Connected DenseNet
+run_name: fc densenet
+data_value: real
+train_split: 0.7
+val_split: 0.2
+test_split: 0.1
+batch_size: 512
+activation: relu
+optimizer: RMSprop
+diffusion: False
+learning_rate: 0.01
+lr_scheduler: exponential
+lr_decay: 0.995
+predict_noise: False
+loss: mse
+epochs: 200
+seed: 42
+kernel_size : 5
+input_channels : 2
+output_channels : 64
+transients: True
+save_checkpoint_to: models/transients/fully_connected_unet
+checkpoint_file_path: models/transients/fully_connected_unet/last.ckpt
+save_nifti_in_folder: nifti_files/fully_connected_unet_transients
+save_fitting_results_in_folder: fitting_results/fully_connected_unet_transients

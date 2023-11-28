@@ -1,0 +1,36 @@
+name: CBAM Attention Unet. MRS Spectra experiment
+project_name: CBAM Attention Unet Transients Conditioned for Coil Combined MRS Spectra
+model_name: CBAM Attention Unet
+run_name: cbam_attention_unet_transients_conditioned
+train_split: 0.7
+val_split: 0.2
+test_split: 0.1
+batch_size: 128 
+cutoff_training: True
+stop_training_after: 92 # 94500/256 = 369 epochs which divided by 8 (number of transients) is 46 batches for every epoch
+activation: relu
+optimizer: AdamW
+patience: 10
+diffusion: False
+learning_rate: 0.001
+predict_noise: False
+number_of_transients: 8
+loss: mse
+epochs: 500
+test_batch_size: 32
+seed: 42
+normalize_input_data: False 
+early_stopping_patience: 10
+kernel_size : 3
+input_channels : 2
+output_channels : 64
+lr_scheduler: reduce_on_plateau
+bn_eps: 0.1
+bn_momentum: 0.95
+transients: False # when set to True, will load the transients instead of the coil combined spectra
+transients_individually: False # when set to True, will reshape the data from (bs, c, 8, 512) to (bs*8, c, 512)
+transients_conditioned: True # when set to True, will reshape the coil combined data from (bs, c, 512) to (bs, c, 8, 512) by repeating the transients 8 times
+save_checkpoint_to: models/transients/cbam_attention_unet
+save_nifti_in_folder: nifti_files/cbam_attention_unet_transients_conditioned
+save_fitting_results_in_folder: fitting_results/cbam_attention_unet_transients_conditioned
+save_test_results_in_folder: inference_results_numpy_files/cbam_attention_unet_transients_conditioned
