@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from wandb.sdk.wandb_config import Config as wandbConfig
-from models.DenoisingBaseModel import DenoisingBaseModel
+from DenoisingBaseModel import DenoisingBaseModel
 from CBAM import CBAM2d
 import math
 

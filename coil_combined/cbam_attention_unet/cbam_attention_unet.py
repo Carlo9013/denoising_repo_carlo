@@ -12,14 +12,7 @@ from CBAM import CBAM1d
 
 
 class DoubleConv(nn.Module):
-    def __init__(
-        self,
-        in_channels,
-        out_channels,
-        kernel_size,
-        mid_channels=None,
-        residual=False,
-    ):
+    def __init__(self, in_channels, out_channels, kernel_size, mid_channels=None, residual=False):
         super().__init__()
         self.residual = residual
         self.kernel_size = kernel_size
@@ -27,22 +20,10 @@ class DoubleConv(nn.Module):
         if not mid_channels:
             mid_channels = out_channels
         self.double_conv = nn.Sequential(
-            nn.Conv1d(
-                in_channels,
-                mid_channels,
-                kernel_size=kernel_size,
-                padding=kernel_size // 2,
-                bias=False,
-            ),
+            nn.Conv1d(in_channels, mid_channels, kernel_size=kernel_size, padding=kernel_size // 2, bias=False),
             nn.GroupNorm(1, mid_channels),
             nn.GELU(),
-            nn.Conv1d(
-                mid_channels,
-                out_channels,
-                kernel_size=kernel_size,
-                padding=kernel_size // 2,
-                bias=False,
-            ),
+            nn.Conv1d(mid_channels, out_channels, kernel_size=kernel_size, padding=kernel_size // 2, bias=False),
             nn.GroupNorm(1, out_channels),
         )
 
