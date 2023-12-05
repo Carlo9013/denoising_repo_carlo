@@ -59,7 +59,7 @@ class CyclicPaddingConv(nn.Module):
         x = self.cyclic_padding(x)
         x = self.conv1(x)
         return x
-
+        
 
 class DenoisingAutoencoderTransients(DenoisingBaseModel):
     """Denoising autoencoder with transposed convolution.

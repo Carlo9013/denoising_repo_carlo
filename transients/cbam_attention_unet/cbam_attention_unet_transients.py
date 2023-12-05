@@ -3,10 +3,14 @@ import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.utils.data import DataLoader
 from wandb.sdk.wandb_config import Config as wandbConfig
 from DenoisingBaseModel import DenoisingBaseModel
 from CBAM import CBAM2d
 import math
+
+
+# datasets = DataLoader(\\)
 
 
 # U-Net code adapted from: https://github.com/milesial/Pytorch-UNet
@@ -46,20 +50,34 @@ class CyclicPaddingConv(nn.Module):
         super().__init__()
         if n is None:
             n = math.floor(y / 2)
-        self.cyclic_padding = CyclicPadding2D(n=num_coils)
-        self.conv1 = nn.Conv2d(
-            in_channels,
-            out_channels,
-            kernel_size=(num_coils, y),
-            stride=1,
-            padding=(0, n),
+        self.cyclic_padding_conv = nn.Sequential(
+            CyclicPadding2D(n=num_coils),
+            nn.Conv2d(
+                in_channels,
+                out_channels,
+                kernel_size=(num_coils, y),
+                stride=1,
+                padding=(0, n),
+            )
         )
+#
+#         self.cyclic_padding = CyclicPadding2D(n=num_coils)
+#         self.conv1 = nn.Conv2d(
+#             in_channels,
+#             out_channels,
+#             kernel_size=(num_coils, y),
+#             stride=1,
+#             padding=(0, n),
+#         )
+#
+#
+#     def forward(self, x):
+#         x = self.cyclic_padding(x)
+#         x = self.conv1(x)
+#         return x
 
     def forward(self, x):
-        x = self.cyclic_padding(x)
-        x = self.conv1(x)
-        return x
-
+        return self.cyclic_padding_conv(x)
 
 class DoubleConv(nn.Module):
     def __init__(
@@ -103,6 +121,35 @@ class DoubleConv(nn.Module):
             return self.double_conv(x)
 
 
+class DoubleConv_new(nn.Module):
+    def __init__(self, in_channels, out_channels, kernel_size, mid_channels=None, residual=False, *args, **kwargs):
+        super().__init__(DoubleConv_new, self)
+        self.residual = residual
+        self.kernel_size = kernel_size
+
+        if not mid_channels:
+            mid_channels = out_channels
+
+        self.doubleconv_new = nn.Sequential(
+            CyclicPaddingConv(in_channels, mid_channels),
+            nn.GroupNorm(1, mid_channels),
+            nn.GELU(),
+            nn.Conv2d(
+                mid_channels,
+                out_channels,
+                kernel_size=kernel_size,
+                padding=kernel_size // 2,
+                bias=False,
+            ),
+            nn.GroupNorm(1, out_channels),
+        )
+
+    def forward(self, x):
+        if self.residual:
+            return F.gelu(x + self.doubleconv_new(x))
+        else:
+            return self.doubleconv_new(x)
+
 class Down(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size):
         super().__init__()
@@ -116,6 +163,18 @@ class Down(nn.Module):
 
     def forward(self, x):
         return self.maxpool_conv(x)
+
+class Down_new(nn.Module):
+    def __init__(self, in_channels, mid_channel, out_channels, kernel_size):
+        super().__init__()
+        self.down_layer = nn.Sequential(
+            nn.MaxPool2d(kernel_size=(1, 3), stride=(1, 3)),
+            DoubleConv_new(in_channels, out_channels, kernel_size, residual=True),
+        )
+
+    def forward(self, x):
+        return self.down_layer(x)
+
 
 
 class Up(nn.Module):
@@ -168,12 +227,15 @@ class CBAMAttentionUnetTransients(DenoisingBaseModel):
         self.bilinear = bilinear
         self.kernel_size = params.kernel_size
 
-        self.cyclic_padding = CyclicPaddingConv(in_channels=2, out_channels=2)
+        self.cyclic_padding = CyclicPadding2D(params.in_channels)
         self.inc = DoubleConv(params.input_channels, 64, self.kernel_size)
-        self.down1 = Down(64, 128, self.kernel_size)
-        self.down2 = Down(128, 256, self.kernel_size)
+        self.down1 = Down_new(64, 128, self.kernel_size)
+        self.down2 = Down_new(128, 256, self.kernel_size)
         factor = 2 if bilinear else 1
-        self.down3 = Down(256, 512 // factor, self.kernel_size)
+        self.down3 = Down_new(256, 512, self.kernel_size)
+        # factor = 2 if bilinear else 1
+        # self.down4 = Down_new(512, 1024 // factor, self.kernel_size)
+        # self.up1 = Up(1024, 512 // factor, bilinear)
         self.up1 = Up(512, 256 // factor, bilinear)
         self.up2 = Up(256, 128 // factor, bilinear)
         self.up3 = Up(128, 64, bilinear)
@@ -214,3 +276,6 @@ class CBAMAttentionUnetTransients(DenoisingBaseModel):
         x = self.up3(x, x1)
         output = self.outc(x)
         return output
+
+
+# https://siliconlabs.github.io/mltk/docs/guides/model_training_via_ssh.html
