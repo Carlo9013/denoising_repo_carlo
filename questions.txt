@@ -1,0 +1,9 @@
+What are the sequence of a training? Step by step?
+	Model design
+	Load Data and spilit data into train, test, validation datasets(dataset_loader.py)
+	Save the log file and compare the performance
+
+
+In "data", what does preprocess do?
+
+Where are all the log-files of your models saved? To compare performance.
